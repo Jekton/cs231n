@@ -77,8 +77,8 @@ def svm_loss_vectorized(W, X, y, reg):
   delta = 1
   num_train = X.shape[0]
   scores = np.matmul(X, W)
-  margins = np.maximum(0, scores - np.choose(y, scores.T).reshape(num_train, 1) + delta)
-  loss = np.sum(margins) - num_train  # substract (num_train * delta) extra
+  margins_raw = scores - np.choose(y, scores.T).reshape(num_train, 1) + delta
+  loss = np.sum(np.maximum(0, margins_raw)) - num_train  # substract (num_train * delta) extra
   loss /= num_train
   loss += reg * np.sum(W * W)
   #############################################################################
@@ -95,7 +95,14 @@ def svm_loss_vectorized(W, X, y, reg):
   # to reuse some of the intermediate values that you used to compute the     #
   # loss.                                                                     #
   #############################################################################
-
+  num_feature = X.shape[1]
+  for i in xrange(num_train):
+    error_indices = margins_raw[i] > 0
+    num_error = np.sum(error_indices)
+    dW[:, error_indices] += X[i].reshape(num_feature, 1)
+    dW[:, y[i]] -= num_error * X[i]
+  dW /= num_train
+  dW += reg * 2 * W
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
