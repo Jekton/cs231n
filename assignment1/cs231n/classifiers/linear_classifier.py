@@ -53,9 +53,9 @@ class LinearClassifier(object):
       # Hint: Use np.random.choice to generate indices. Sampling with         #
       # replacement is faster than sampling without replacement.              #
       #########################################################################
-      batch_indices = np.random.choice(num_train, batch_size)
+      batch_indices = np.random.choice(num_train, batch_size, replace=True)
       X_batch = X[batch_indices, :]
-      y_batch = y[batch_size]
+      y_batch = y[batch_indices]
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
